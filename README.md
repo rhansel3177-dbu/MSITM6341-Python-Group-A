@@ -58,10 +58,10 @@ This creates three files in `data/processed/`:
 
 | Task | Description | Owner | Status |
 |---|---|---|---|
-| 2.1 | Acquire, clean, and preprocess data | Richard | Done |
-| 2.2 | Exploratory data analysis & visualizations | _TBD_ | To do |
-| 2.3 | Build and evaluate ML models | _TBD_ | To do |
-| 3.2 | Final report | _TBD_ | To do |
+| 2.1 | Acquire, Clean, and Preprocess Data | Richard | Done |
+| 2.2a | Exploratory data analysis & visualizations: Exploratory Data Analysis | Heran | To do |
+| 2.2b | Exploratory data analysis & visualizations: Data Visualization | Katy | To do |
+| 2.3 | Build and Evaluate a Machine Learning Model| Angela | To do |
 
 ## Team workflow
 
@@ -74,6 +74,7 @@ This creates three files in `data/processed/`:
 
 ## Team
 
-- Richard – data cleaning & preprocessing
-- _Name_ – _role_
-- _Name_ – _role_
+- Richard Hansel
+- Heran Xing
+- Katy Huang
+- Angela Cortes
