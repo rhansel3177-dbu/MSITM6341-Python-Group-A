@@ -1,6 +1,3 @@
-# Generated data (recreate by running the scripts)
-data/processed/
-
 # Python
 __pycache__/
 *.py[cod]
