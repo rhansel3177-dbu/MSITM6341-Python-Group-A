@@ -1,0 +1,7 @@
+# Black-and-green theme for app.py (colors are reused in the Plotly charts)
+[theme]
+base = "dark"
+backgroundColor = "#0A0A0A"
+secondaryBackgroundColor = "#141414"
+primaryColor = "#00E676"
+textColor = "#E8F5E9"
