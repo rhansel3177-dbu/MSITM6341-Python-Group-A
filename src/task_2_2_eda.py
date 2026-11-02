@@ -99,6 +99,7 @@ def create_visualizations(df):
 
     output_folder.mkdir(parents=True, exist_ok=True)
 
+def plot_monthly_charges_histogram(df, output_folder):
     # Create the histogram
     plt.figure(figsize=(9, 6))
 
@@ -117,7 +118,7 @@ def create_visualizations(df):
 
     print("\nHistogram saved successfully!") 
 
-
+def plot_contract_churn_bar_chart(df, output_folder):
     # Visualization 2: Bar Chart of Churn Rate by Contract Type
 
     # Calculate the percentage of customers who churned
@@ -159,7 +160,7 @@ def create_visualizations(df):
     print("\nContract churn bar chart saved successfully!")
     print(contract_churn.round(2))
 
-
+def plot_tenure_boxplot(df, output_folder):
     # Visualization 3: Box Plot of Customer Tenure by Churn Status
 
     # Separate tenure values for retained and churned customers
@@ -191,8 +192,14 @@ def create_visualizations(df):
     print("\nMedian Tenure by Churn Status:")
     print(df.groupby("Churn")["tenure"].median())
 
-
+def plot_correlation_heatmap(df, output_folder):
     # Visualization 4: Correlation Heatmap
+    churn_columns = [
+        "tenure",
+        "MonthlyCharges",
+        "TotalCharges",
+        "ChurnNumeric"
+    ]
 
     # Use the correlation matrix that includes customer churn
     heatmap_data = df[churn_columns].corr()
@@ -236,7 +243,14 @@ def create_visualizations(df):
 def main():
     df = load_data()
     analyze_data(df)
-    create_visualizations(df)
+
+    output_folder = Path(__file__).resolve().parent.parent / "outputs" / "figures"
+    output_folder.mkdir(parents=True, exist_ok=True)
+
+    plot_monthly_charges_histogram(df, output_folder)
+    plot_contract_churn_bar_chart(df, output_folder)
+    plot_tenure_boxplot(df, output_folder)
+    plot_correlation_heatmap(df, output_folder)
 
 
 if __name__ == "__main__":
