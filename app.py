@@ -2,7 +2,7 @@
 Telco Customer Churn - Midterm Project Presentation App (Streamlit)
 ===================================================================
 A visual walk-through of the project in four pages:
-    1. Dataset                      -> what the data looks like
+    1. Dataset                      -> what the data looks like + Task 2.2 EDA
     2. Cleaning and Preprocessing   -> Task 2.1 steps and their decisions
     3. Model Results                -> Task 2.3 metrics, ROC, threshold, features
     4. Predict a Customer           -> score one customer with both tuned models
@@ -11,6 +11,7 @@ The app does NOT re-implement any cleaning, encoding, training, or prediction.
 Everything comes from the project scripts:
     src/task_2_1_clean_preprocess.py   (imported as `preprocessing`)
     src/task_2_3_model_evaluation.py   (imported as `modeling`)
+The Task 2.2 EDA charts are the PNGs saved by src/task_2_2_eda.py.
 
 Run (from the repo root):  streamlit run app.py
 Requires: streamlit, plotly, pandas, numpy, scikit-learn (see requirements.txt)
@@ -76,6 +77,16 @@ VARIABLE_DESCRIPTIONS = {
     "TotalCharges": "Total amount billed so far in USD",
     "Churn": "TARGET: whether the customer left in the last month",
 }
+
+# Task 2.2 EDA: the charts saved by src/task_2_2_eda.py, in display order
+EDA_FIGURE_DIR = ROOT_DIR / "outputs" / "figures"
+EDA_FIGURES = [
+    ("monthly_charges_histogram.png", "Distribution of monthly charges"),
+    ("contract_churn_bar_chart.png", "Churn rate by contract type"),
+    ("tenure_churn_boxplot.png", "Tenure by churn status"),
+    ("churn_correlation_heatmap.png", "Correlation of numeric variables with churn"),
+]
+EDA_NUMERIC_COLUMNS = ["tenure", "MonthlyCharges", "TotalCharges"]
 
 # Readable labels for the prediction form
 FIELD_LABELS = {
@@ -323,19 +334,71 @@ def distribution_figure(df, column):
     return style_figure(fig, height=420)
 
 
-def render_eda_section(clean_df):
-    """Placeholder for the Task 2.2 Exploratory Data Analysis.
+def eda_key_numbers(clean_df):
+    """Compute the headline numbers printed by the Task 2.2 EDA script.
 
-    TODO (Task 2.2 owners): replace the st.info() below with your EDA charts
-    and findings. You receive the cleaned, human-readable data; use
-    with_outcome(clean_df) to get a Stayed/Churned column, and style_figure()
-    + show_chart() for Plotly charts so they match the app's theme.
+    Parameters:
+        clean_df (DataFrame): cleaned data (same as telco_churn_clean.csv)
+    Returns:
+        dict: churn rate, churn correlations, churn rate by contract,
+              median tenure by outcome
+    """
+    churn = clean_df["Churn"].map({"Yes": 1, "No": 0})
+    correlations = clean_df[EDA_NUMERIC_COLUMNS].corrwith(churn)
+    contract_churn = churn.groupby(clean_df["Contract"]).mean()
+    median_tenure = clean_df.groupby("Churn")["tenure"].median()
+    return {"churn_rate": churn.mean(), "correlations": correlations,
+            "contract_churn": contract_churn, "median_tenure": median_tenure}
+
+
+def render_eda_section(clean_df):
+    """Show the Task 2.2 Exploratory Data Analysis: key findings and its four charts.
+
+    DECISION: src/task_2_2_eda.py is a script that runs everything when it is
+    imported, so the app does not import it. It shows the charts the script
+    saved in outputs/figures/ and recomputes only the headline numbers.
 
     Parameters:
         clean_df (DataFrame): cleaned data (same as telco_churn_clean.csv)
     """
-    st.info("The exploratory data analysis and visualizations from Task 2.2 "
-            "will be added here by our teammates.", icon=":material/construction:")
+    stats = eda_key_numbers(clean_df)
+    corr = stats["correlations"]
+    contract = stats["contract_churn"]
+    tenure = stats["median_tenure"]
+
+    st.caption("From `src/task_2_2_eda.py`, run on the cleaned data from Task 2.1.")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Churn rate", f"{stats['churn_rate']:.1%}",
+                help="About 1 in 4 customers left: the classes are imbalanced.")
+    col2.metric("Month-to-month churn", f"{contract['Month-to-month']:.1%}",
+                help=f"One year: {contract['One year']:.1%}, "
+                     f"two year: {contract['Two year']:.1%}")
+    col3.metric("Median tenure (churned vs stayed)",
+                f"{tenure['Yes']:.0f} vs {tenure['No']:.0f} months")
+    col4.metric("Tenure-churn correlation", f"{corr['tenure']:.2f}",
+                help=f"MonthlyCharges: {corr['MonthlyCharges']:.2f}, "
+                     f"TotalCharges: {corr['TotalCharges']:.2f}")
+
+    st.markdown(
+        f"- **Contract type matters most:** month-to-month customers churn at "
+        f"{contract['Month-to-month']:.0%}, against {contract['Two year']:.0%} on "
+        "two-year contracts.\n"
+        f"- **New customers leave:** churners have a median tenure of {tenure['Yes']:.0f} "
+        f"months, stayers {tenure['No']:.0f}. Tenure has the strongest correlation "
+        f"with churn ({corr['tenure']:.2f}).\n"
+        f"- **Higher bills, more churn:** MonthlyCharges correlates positively with "
+        f"churn ({corr['MonthlyCharges']:.2f}).\n"
+        "- **No outliers:** the IQR method finds no outliers in tenure, MonthlyCharges, "
+        "or TotalCharges, so none were removed."
+    )
+
+    for row in [EDA_FIGURES[:2], EDA_FIGURES[2:]]:
+        for column, (filename, caption) in zip(st.columns(2), row):
+            path = EDA_FIGURE_DIR / filename
+            if path.exists():
+                column.image(str(path), caption=caption, width="stretch")
+            else:
+                column.warning(f"{filename} not found. Run `python src/task_2_2_eda.py`.")
 
 
 def page_dataset():
