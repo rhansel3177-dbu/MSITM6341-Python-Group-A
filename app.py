@@ -1,11 +1,14 @@
 """
 Telco Customer Churn - Midterm Project Presentation App (Streamlit)
 ===================================================================
-A visual walk-through of the project in four pages:
-    1. Dataset                      -> what the data looks like + Task 2.2 EDA
-    2. Cleaning and Preprocessing   -> Task 2.1 steps and their decisions
-    3. Model Results                -> Task 2.3 metrics, ROC, threshold, features
-    4. Predict a Customer           -> score one customer with both tuned models
+A visual walk-through of the project in seven pages:
+    1. Introduction to the Dataset  -> what the data looks like
+    2. Data Cleaning and Preprocessing Steps -> Task 2.1 steps and their decisions
+    3. EDA & Key Insights           -> Task 2.2 findings and charts
+    4. Model Building and Evaluation -> Task 2.3 metrics, ROC, threshold, features
+    5. Model implementation         -> score one customer with both tuned models
+    6. Conclusion                   -> text from outputs/report/conclusions.md
+    7. References                   -> text from outputs/report/references.md
 
 The app does NOT re-implement any cleaning, encoding, training, or prediction.
 Everything comes from the project scripts:
@@ -35,8 +38,14 @@ import task_2_3_model_evaluation as modeling  # noqa: E402
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-PAGES = ["1. Dataset", "2. Cleaning and Preprocessing",
-         "3. Model Results", "4. Predict a Customer"]
+PAGES = ["1. Introduction to the Dataset", "2. Data Cleaning and Preprocessing Steps",
+         "3. EDA & Key Insights", "4. Model Building and Evaluation", "5. Model implementation",
+         "6. Conclusion", "7. References"]
+
+# Report text written by the team in Markdown, shown as-is on its page
+REPORT_DIR = ROOT_DIR / "outputs" / "report"
+CONCLUSIONS_FILE = REPORT_DIR / "conclusions.md"
+REFERENCES_FILE = REPORT_DIR / "references.md"
 
 # Theme colors (must match .streamlit/config.toml)
 BACKGROUND = "#0A0A0A"
@@ -283,7 +292,7 @@ def confusion_matrix_figure(cm, title):
 
 
 # ==============================================================================
-# PAGE 1: DATASET
+# PAGES 1 AND 3: DATASET AND EDA
 # ==============================================================================
 
 def build_variable_table(df):
@@ -433,8 +442,11 @@ def page_dataset():
     column = st.selectbox("Variable", options, index=options.index("tenure"))
     show_chart(distribution_figure(with_outcome(clean_df), column))
 
-    st.subheader("Exploratory Data Analysis (Task 2.2)")
-    render_eda_section(clean_df)
+
+def page_eda():
+    """Page 3: the Task 2.2 exploratory data analysis and its key insights."""
+    st.title("EDA & Key Insights")
+    render_eda_section(load_clean_data())
 
 
 # ==============================================================================
@@ -521,11 +533,11 @@ def page_cleaning():
 
 
 # ==============================================================================
-# PAGE 3: MODEL RESULTS
+# PAGE 4: MODEL BUILDING AND EVALUATION
 # ==============================================================================
 
 def page_model_results():
-    """Page 3: comparison table, confusion matrices, ROC, threshold, features."""
+    """Page 4: comparison table, confusion matrices, ROC, threshold, features."""
     all_models, best_params = train_models()
     evaluator = get_evaluator()
     comparison = get_comparison_table()
@@ -632,7 +644,7 @@ def page_model_results():
 
 
 # ==============================================================================
-# PAGE 4: PREDICT A CUSTOMER
+# PAGE 5: MODEL IMPLEMENTATION (PREDICT A CUSTOMER)
 # ==============================================================================
 
 def fill_form(customer):
@@ -693,7 +705,7 @@ def probability_figure(results):
 
 
 def page_predict():
-    """Page 4: enter one customer and score them with both tuned models."""
+    """Page 5: enter one customer and score them with both tuned models."""
     predictor = get_predictor()
 
     # First visit: start from the low-risk example so every widget has a value.
@@ -763,6 +775,34 @@ def page_predict():
 
 
 # ==============================================================================
+# PAGES 6 AND 7: CONCLUSION AND REFERENCES
+# ==============================================================================
+
+def show_markdown_file(title, path):
+    """Show a page whose text comes from a Markdown file in outputs/report/.
+
+    DECISION: the text lives in a file, not in the code, so the team can edit
+    the conclusions and references without touching the app.
+
+    DECISION: each paragraph is drawn as its own element. When printing, the
+    browser does not split an element across pages, so one long block would
+    be pushed whole to page 2 and leave page 1 empty.
+
+    Parameters:
+        title (str): page title
+        path (Path): Markdown file to display
+    """
+    st.title(title)
+    text = path.read_text(encoding="utf-8").strip() if path.exists() else ""
+    if text:
+        for paragraph in text.split("\n\n"):
+            if paragraph.strip():
+                st.markdown(paragraph)
+    else:
+        st.info(f"Nothing here yet. Add the text to `{path.relative_to(ROOT_DIR).as_posix()}`.")
+
+
+# ==============================================================================
 # MAIN
 # ==============================================================================
 
@@ -777,16 +817,23 @@ def main():
     page = st.sidebar.radio("Go to", PAGES, label_visibility="collapsed")
     st.sidebar.divider()
     st.sidebar.caption("Data: IBM Telco Customer Churn (Kaggle). "
-                       "Models: Logistic Regression and Random Forest (scikit-learn).")
+                       "Models: Logistic Regression and Random Forest (scikit-learn).  \n"
+                       "Authors: Richard Hansel - Katy Huang - Angela Cortes")
 
     if page == PAGES[0]:
         page_dataset()
     elif page == PAGES[1]:
         page_cleaning()
     elif page == PAGES[2]:
+        page_eda()
+    elif page == PAGES[3]:
         page_model_results()
-    else:
+    elif page == PAGES[4]:
         page_predict()
+    elif page == PAGES[5]:
+        show_markdown_file("Conclusion", CONCLUSIONS_FILE)
+    else:
+        show_markdown_file("References", REFERENCES_FILE)
 
 
 main()
