@@ -123,7 +123,7 @@ Use the sidebar to move between the four pages:
 | Task | Description | Owner | Status |
 |---|---|---|---|
 | 2.1 | Acquire, Clean, and Preprocess Data | Richard | Done |
-| 2.2a | Exploratory data analysis & visualizations: Exploratory Data Analysis | Heran | Done |
+| 2.2a | Exploratory data analysis & visualizations: Exploratory Data Analysis | Katy | Done |
 | 2.2b | Exploratory data analysis & visualizations: Data Visualization | Katy | Done |
 | 2.3 | Build and Evaluate a Machine Learning Model| Angela | Done |
 
