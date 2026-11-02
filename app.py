@@ -39,7 +39,7 @@ import task_2_3_model_evaluation as modeling  # noqa: E402
 # Configuration
 # ------------------------------------------------------------------------------
 PAGES = ["1. Introduction to the Dataset", "2. Data Cleaning and Preprocessing Steps",
-         "3. EDA & Key Insights", "4. Model Bulding and Evaluation", "5. Model implementation",
+         "3. EDA & Key Insights", "4. Model Building and Evaluation", "5. Model implementation",
          "6. Conclusion", "7. References"]
 
 # Report text written by the team in Markdown, shown as-is on its page
